@@ -11,10 +11,12 @@ requires-python = ">=3.13"
 license = "MIT"
 license-files = ["LICENSE"]
 
-dependencies = []
+dependencies = [
+    "click>=8.2.1",
+]
 
 [project.scripts]
-sort-my-roll = "sort_my_roll:main"
+sort-my-roll = "sort_my_roll.cli:entry"
 
 [build-system]
 requires = ["hatchling"]
