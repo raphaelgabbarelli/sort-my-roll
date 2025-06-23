@@ -1,12 +1,16 @@
 [project]
 name = "sort-my-roll"
 version = "0.1.0"
-description = "Add your description here"
+description = "keep photo backups sorted by date-taken"
 readme = "README.md"
 authors = [
     { name = "Raphael Gabbarelli", email = "raphael@gabbarelli.it" }
 ]
 requires-python = ">=3.13"
+
+license = "MIT"
+license-files = ["LICENSE"]
+
 dependencies = []
 
 [project.scripts]
@@ -15,3 +19,6 @@ sort-my-roll = "sort_my_roll:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[project.urls]
+Homepage = "https://github.com/raphaelgabbarelli/sort-my-roll"
