@@ -1,0 +1,17 @@
+[project]
+name = "sort-my-roll"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Raphael Gabbarelli", email = "raphael@gabbarelli.it" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+sort-my-roll = "sort_my_roll:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
