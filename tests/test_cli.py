@@ -9,7 +9,7 @@ from click.testing import CliRunner
 
 @pytest.mark.parametrize('command,expected', [
     ('init', 'initializing database'),
-    ('backup', 'performing backup from'),
+    ('backup --source /fakepath', 'performing backup from'),
     ('integrity-check', 'performing integrity check')])
 def test_cli(command, expected):
     runner = CliRunner()
