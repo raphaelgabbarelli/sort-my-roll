@@ -192,3 +192,7 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Datastores - default name of the sort-my-roll database
+sortmyroll.db
+logs.dat

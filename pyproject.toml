@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-sort-my-roll = "sort_my_roll.cli:entry"
+sort-my-roll = "sort_my_roll:main"
 
 [build-system]
 requires = ["hatchling"]

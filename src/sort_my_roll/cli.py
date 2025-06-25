@@ -1,5 +1,5 @@
 import click
-
+from sort_my_roll.db.init import initialize_database
 
 @click.group()
 def entry():
@@ -9,6 +9,7 @@ def entry():
 @click.command('init', help='initializes the current directory as a backup point')
 def init():
     click.echo('initializing database')
+    initialize_database()
 
 
 @click.command('backup', help='perform a backup from source to destination')
