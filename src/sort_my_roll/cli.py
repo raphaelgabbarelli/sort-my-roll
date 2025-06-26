@@ -33,9 +33,6 @@ def backup(source):
             click.echo("The --source directory does not exist")
     except Exception as e:
         logger.exception("Invalid source")
-
-    traverse_source(source_path)
-    
         
 
 @click.command('integrity-check', help='performs an integrity check on the current backup point')

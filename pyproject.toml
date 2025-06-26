@@ -13,6 +13,7 @@ license-files = ["LICENSE"]
 
 dependencies = [
     "click>=8.2.1",
+    "pytest-mock>=3.14.1",
 ]
 
 [project.scripts]
