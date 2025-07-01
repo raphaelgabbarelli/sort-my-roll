@@ -6,7 +6,8 @@ import pytest
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Queue
 from typing import Any
-from sort_my_roll.backup import perform_backup
+from collections import namedtuple
+from sort_my_roll import backup
 
 class MockPath(Path):
     def read_bytes(self):
@@ -15,24 +16,45 @@ class MockPath(Path):
     def iterdir(self):
         super().iterdir()
 
+File = namedtuple('File', ['path', 'digest'])
+
 
 @pytest.fixture
-def fake_paths_to_pictures(mocker) -> list[Path]:
+def fake_pictures_files(mocker) -> list[File]:
      
         mocker.patch.object(file_one := MockPath('/fake/path/to/source/picture_1.heic'), 'read_bytes', lambda: b'Pieces of what we could have been')
         mocker.patch.object(file_two := MockPath('/fake/path/to/source/picture_2.gif'), 'read_bytes', lambda: b'Pieces of a shattered dream')
         mocker.patch.object(file_three := MockPath('/fake/path/to/source/picture_3.jpeg'), 'read_bytes', lambda: b'Child, take your dark memories')
         mocker.patch.object(file_four := MockPath('/fake/path/to/source/picture_4.png'), 'read_bytes', lambda: b'Like seeds and plant them far from here')
-        return [file_one, file_two, file_three, file_four]
 
-def test_perform_backup(mocker, fake_paths_to_pictures):
+        # (Path, sha256_hexdigest_of_read_bytes)
+        return [File(file_one, '0f315377c91455bbcb85cfd2cdeb0757cd31892f3c6ce520f42f40ff47ef7b3b'), 
+            File(file_two, 'c0f01089f22b8b1a98d1364e8a28a0654b34522197111ac873c5cb83f2d7105d'), 
+            File(file_three, '6dea79ffb79cacb091f6741908fb376a19f34f6ca285621bcdd32591e178fafe'), 
+            File(file_four, '0f315377c91455bbcb85cfd2cdeb0757cd31892f3c6ce520f42f40ff47ef7b3b')]
+
+def test_perform_backup(mocker, fake_pictures_files):
     
-    mocker.patch.object(source := MockPath('/fake/path/to/source'), 'iterdir', lambda: iter(fake_paths_to_pictures))
+    mocker.patch.object(source := MockPath('/fake/path/to/source'), 'iterdir', lambda: iter(p.path for p in fake_pictures_files))
     executor_spy = mocker.spy(ProcessPoolExecutor, 'submit')
     
     queue = Queue()
-    perform_backup(absolute_path=source, queue=queue)
+    backup.perform_backup(absolute_path=source, queue=queue)
     
-    assert executor_spy.call_count == len(fake_paths_to_pictures)
-    assert queue.qsize() == len(fake_paths_to_pictures)
+    assert executor_spy.call_count == len(fake_pictures_files)
     
+
+def test_hash_file(mocker, fake_pictures_files):
+    
+    backup.global_queue = Queue()
+    queue_spy_put = mocker.spy(backup.global_queue, 'put')
+    
+    for file in fake_pictures_files:
+        backup.hash_file(file.path)
+
+    assert queue_spy_put.call_count == len(fake_pictures_files)
+    digests = [file.digest for file in fake_pictures_files]
+    while backup.global_queue.qsize() > 0:
+        message = backup.global_queue.get()
+        message.digest in digests
+        
