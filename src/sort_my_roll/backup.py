@@ -5,14 +5,14 @@ from pathlib import Path
 
 logger = logging.getLogger(__file__)
 
-queue = None
+global_queue = None
 
 def hash(file_path: Path):
-    print(f'hashing {file_path}')
+    global_queue.put(f'requests for {file_path}')
 
 def pool_initializer(q):
-    global queue
-    queue = q
+    global global_queue
+    global_queue = q
 
 def traverse_source(absolute_path: Path, process_pool_executor: ProcessPoolExecutor):
     
@@ -22,7 +22,6 @@ def traverse_source(absolute_path: Path, process_pool_executor: ProcessPoolExecu
         else:
             process_pool_executor.submit(hash, p)
 
-def perform_backup(absolute_path: Path):
-    q = Queue()
-    with ProcessPoolExecutor(initializer=pool_initializer, initargs=(q,)) as executor:
+def perform_backup(absolute_path: Path, queue: Queue):
+    with ProcessPoolExecutor(initializer=pool_initializer, initargs=(queue,)) as executor:
         traverse_source(absolute_path, executor)

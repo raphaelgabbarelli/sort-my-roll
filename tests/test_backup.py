@@ -4,6 +4,7 @@ sys.path.append(str(Path(__file__).parent.parent) + '/src')
 
 import pytest
 from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import Queue
 from typing import Any
 from sort_my_roll.backup import perform_backup
 
@@ -24,12 +25,14 @@ def fake_paths_to_pictures(mocker) -> list[Path]:
         mocker.patch.object(file_four := MockPath('/fake/path/to/source/picture_4.png'), 'read_bytes', lambda: b'Like seeds and plant them far from here')
         return [file_one, file_two, file_three, file_four]
 
-def test_traverse_source(mocker, fake_paths_to_pictures):
+def test_perform_backup(mocker, fake_paths_to_pictures):
     
     mocker.patch.object(source := MockPath('/fake/path/to/source'), 'iterdir', lambda: iter(fake_paths_to_pictures))
     executor_spy = mocker.spy(ProcessPoolExecutor, 'submit')
     
-    perform_backup(absolute_path=source)
+    queue = Queue()
+    perform_backup(absolute_path=source, queue=queue)
     
     assert executor_spy.call_count == len(fake_paths_to_pictures)
+    assert queue.qsize() == len(fake_paths_to_pictures)
     
