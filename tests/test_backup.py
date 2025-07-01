@@ -11,6 +11,9 @@ class MockPath(Path):
     def read_bytes(self):
         super().read_bytes()
 
+    def iterdir(self):
+        super().iterdir()
+
 
 @pytest.fixture
 def fake_paths_to_pictures(monkeypatch) -> list[Path]:
@@ -23,11 +26,11 @@ def fake_paths_to_pictures(monkeypatch) -> list[Path]:
 
 def test_traverse_source(mocker, fake_paths_to_pictures):
     
-    mock_path = mocker.patch.object(Path, 'iterdir', return_value=iter(fake_paths_to_pictures))
+    mocker.patch.object(source := MockPath('/fake/path/to/source'), 'iterdir', lambda: iter(fake_paths_to_pictures))
     executor_mock = mocker.patch.object(ProcessPoolExecutor, 'map', return_value=iter([]))
     
     executor = ProcessPoolExecutor()
     executor_spy = mocker.spy(executor, 'submit')
-    traverse_source(source := Path('/fake/path/to/source'), executor)
+    traverse_source(source, executor)
     
     assert executor_spy.call_count == len(fake_paths_to_pictures)
