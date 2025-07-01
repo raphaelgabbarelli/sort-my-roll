@@ -5,6 +5,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__file__)
 
+queue = None
 
 def hash(file_path: Path):
     print(f'hashing {file_path}')
@@ -22,6 +23,6 @@ def traverse_source(absolute_path: Path, process_pool_executor: ProcessPoolExecu
             process_pool_executor.submit(hash, p)
 
 def perform_backup(absolute_path: Path):
-    queue = Queue()
+    q = Queue()
     with ProcessPoolExecutor(initializer=pool_initializer, initargs=(q,)) as executor:
         traverse_source(absolute_path, executor)

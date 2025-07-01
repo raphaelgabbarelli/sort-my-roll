@@ -5,7 +5,7 @@ sys.path.append(str(Path(__file__).parent.parent) + '/src')
 import pytest
 from concurrent.futures import ProcessPoolExecutor
 from typing import Any
-from sort_my_roll.backup import traverse_source
+from sort_my_roll.backup import perform_backup
 
 class MockPath(Path):
     def read_bytes(self):
@@ -27,10 +27,9 @@ def fake_paths_to_pictures(mocker) -> list[Path]:
 def test_traverse_source(mocker, fake_paths_to_pictures):
     
     mocker.patch.object(source := MockPath('/fake/path/to/source'), 'iterdir', lambda: iter(fake_paths_to_pictures))
-    executor_mock = mocker.patch.object(ProcessPoolExecutor, 'map', return_value=iter([]))
+    executor_spy = mocker.spy(ProcessPoolExecutor, 'submit')
     
-    executor = ProcessPoolExecutor()
-    executor_spy = mocker.spy(executor, 'submit')
-    traverse_source(source, executor)
+    perform_backup(absolute_path=source)
     
     assert executor_spy.call_count == len(fake_paths_to_pictures)
+    
