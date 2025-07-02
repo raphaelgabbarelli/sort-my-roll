@@ -7,5 +7,7 @@ class Repo:
     def __init__(self, connection: sqlite3.Connection):
         self._connection = connection
 
-    def file_is_registered(self, file_name: str, hash_digest: str) -> bool:
-        pass
+    def file_is_registered(self, hash_digest: str) -> bool:
+        cursor = self._connection.cursor()
+        cursor.execute("SELECT true FROM files WHERE sha_256 = ?", (hash_digest,))
+        return len(cursor.fetchall()) == 1
