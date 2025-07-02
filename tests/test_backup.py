@@ -54,10 +54,7 @@ def test_hash_file(mocker, fake_pictures_files):
     repo = Mock(spec=Repo)
 
     # simulates picture_1.heic being already registered
-    def conditional_return(digest):
-        return digest == '0f315377c91455bbcb85cfd2cdeb0757cd31892f3c6ce520f42f40ff47ef7b3b'
-
-    repo.file_is_registered.side_effect = conditional_return
+    repo.file_is_registered.side_effect = lambda digest: digest == '0f315377c91455bbcb85cfd2cdeb0757cd31892f3c6ce520f42f40ff47ef7b3b'
     
     for file in fake_pictures_files:
         backup.hash_file(file.path, repo)

@@ -25,10 +25,12 @@ def hash_file(file_path: Path, repo: Repo):
     except TypeError:
         logger.exception("invalid type of content to be hashed")
         # TODO - add to a dead letter queue
+        return
     except ValueError:
         logger.exception("invalid content to be hashed")
         # TODO - add to a dead letter queue
-
+        return
+        
     if not repo.file_is_registered(digest):
         command = WriteCommand(file_name=file_path.name, digest=digest)
         try:
