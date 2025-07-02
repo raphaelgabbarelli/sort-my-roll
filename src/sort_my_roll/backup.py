@@ -1,6 +1,7 @@
 import logging
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Queue
+from queue import Full
 from pathlib import Path
 from hashlib import sha256
 
@@ -13,8 +14,21 @@ class WriteCommand:
         self.digest = digest
 
 def hash_file(file_path: Path):
-    command = WriteCommand(file_name=file_path.name, digest=sha256(file_path.read_bytes()).hexdigest())
-    global_queue.put(command)
+    try:
+        command = WriteCommand(file_name=file_path.name, digest=sha256(file_path.read_bytes()).hexdigest())
+    except TypeError:
+        logger.exception("invalid type of content to be hashed")
+        # TODO - add to a dead letter queue
+    except ValueError:
+        logger.exception("invalid content to be hashed")
+        # TODO - add to a dead letter queue
+    
+    try:
+        global_queue.put(command)
+    except ValueError:
+        logger.exception("Cannot put command to closed queue")
+    except Full:
+        logger.exception("Cannot put command to full queue")
 
 def pool_initializer(q):
     global global_queue
